@@ -20,6 +20,7 @@ export default class Bot {
   // estabishes a client that can read and send messages from/to Twitch
   attachDatabase(db) {
     this.db = db;
+    this.logger.attachDatabase(db);
   }
   
   async establishTwitchClient() {
@@ -55,7 +56,10 @@ export default class Bot {
         // there are no errors expected here, so if something does happen it gets logged in error.txt and we keep the program running (otherwise bexxteBot stops :/ )
         await this.processTwitchMessage(twitchMessage);
       } catch(e) {
-        this.logger.log('error', e, twitchMessage);
+        this.logger.log('error', {
+          stack: e.stack,
+          codeRef: 'error caught while processing twitch message'
+        }, twitchMessage);
       }
 
     })
@@ -69,7 +73,11 @@ export default class Bot {
           twitchMessage.addResponse(
             `Naughty naughty, @${twitchMessage.tags.username}! We don't use that word here!`,
             true
-          )
+          );
+          this.logger.log('moderation', {
+            offense: `Forbidden term: ${word}`,
+            action: '20 second timeout'
+          }, twitchMessage)
         }
       });
     }
@@ -118,7 +126,6 @@ export default class Bot {
         );
         // she mad
         this.twitchClient.color(
-          twitchMessage.channel,
           'red'
         );
         this.twitchClient.say(
@@ -127,7 +134,6 @@ export default class Bot {
         );
         // cool it
         this.twitchClient.color(
-          twitchMessage.channel,
           'hotpink'
         );
 
@@ -146,9 +152,10 @@ export default class Bot {
   async processTwitchMessage(twitchMessage) {
 
     this.moderateTwitchMessage(twitchMessage);
+    console.log('made it through moderation')
 
     if (twitchMessage.response) {
-      this.speakInTwitch(twitchMessage);
+      await this.speakInTwitch(twitchMessage);
       // if a message gets modded, any commands will be ignored
       return;
     }
@@ -159,9 +166,12 @@ export default class Bot {
     // only speak if she has something to say
     if (twitchMessage.response) {
       try {
-        this.speakInTwitch(twitchMessage);
+        await this.speakInTwitch(twitchMessage);
       } catch (e) {
-        this.logger.log('error', e);
+        this.logger.log('error', {
+          stack: e.stack,
+          codeRef: 'error caught while speaking a message in twitch'
+        }, twitchMessage);
       }
       return;
     }
@@ -181,7 +191,10 @@ export default class Bot {
       //this.establishDiscordClient();
       this.startTimers();
     } catch (e) {
-      this.logger.log('error', e);
+      this.logger.log('error', {
+        stack: e,
+        codeRef: 'error caught running bexxtebot'
+      });
     }
   }
 

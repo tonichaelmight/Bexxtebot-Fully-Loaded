@@ -54,6 +54,19 @@ export class TwitchCommand {
     }
   }
 
+  logCommandUsage(messageObject) {
+    this.streamer.bot.logger.log('command', {
+      command: this.name
+    }, messageObject);
+  }
+
+  logErrorExecuting(messageObject, e) {
+    this.streamer.bot.logger.log('error', {
+      stack: e.stack, 
+      codeRef: `Error executing the ${this.name} command`
+    }, messageObject);
+  }
+
   execute(messageObject) {
     if (this.quitFromModeration(messageObject)) return;
 
@@ -62,9 +75,9 @@ export class TwitchCommand {
     try {
       // pass the message object if the command needs to reference it
       this.options.refsMessage ? messageObject.addResponse(this.outputFunction(messageObject)) : messageObject.addResponse(this.outputFunction());
-      this.streamer.bot.logger.log('command', this.name, messageObject);
+      this.logCommandUsage(messageObject);
     } catch (e) {
-      this.streamer.bot.logger.log('error', e, messageObject);
+      this.logErrorExecuting(messageObject, e);
     }
   }
 }
@@ -84,9 +97,9 @@ export class AsyncTwitchCommand extends TwitchCommand {
 
     try {
       this.options.refsMessage ? messageObject.addResponse(await this.outputFunction(messageObject)) : messageObject.addResponse(await this.outputFunction());
-      this.streamer.bot.logger.log('command', this.name, messageObject);
+      this.logCommandUsage(messageObject);
     } catch (e) {
-      this.streamer.bot.logger.log('error', e, messageObject);
+      this.logErrorExecuting(messageObject, e);
     }
   }
 
@@ -165,10 +178,10 @@ export class TwitchCounterCommand extends TwitchCommand {
         return;
       }
       messageObject.addResponse(this.outputs[evaluation.action](evaluation));
-      this.streamer.bot.logger.log('command', this.name, messageObject);
+      this.logCommandUsage(messageObject);
       return;
     } catch (e) {
-      this.streamer.bot.logger.log('error', e, messageObject);
+      this.logErrorExecuting(messageObject, e);
     }
   }
 }

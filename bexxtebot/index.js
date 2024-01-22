@@ -39,7 +39,7 @@ export default bexxteBot;
 //   try {
 //     bexxteBot.run();
 //   } catch (e) {
-//     bexxteBot.logger.log('error', e);
+//     bexxteBot.logger.log('error', {stack: e.stack});
 //   }
 // }
 

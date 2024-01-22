@@ -87,7 +87,10 @@ export default class Streamer {
           // this can be ignored
           if (!(e.name === 'SyntaxError' && (e.message === 'Unexpected end of JSON input' || e.message.includes('Unterminated string in JSON at position')))) {
             console.log(e);
-            return this.bot.logger.log('error', e);
+            return this.bot.logger.log('error', {
+              stack: e.stack,
+              codeRef: 'error caught while parsing streamer data'
+            });
           }
         }
 
@@ -96,7 +99,10 @@ export default class Streamer {
     });
 
     channelInfoRequest.on('error', e => {
-      this.bot.logger.log('error', e);
+      this.bot.logger.log('error', {
+        stack: e.stack,
+        codeRef: 'error caught while fetching streamer data'
+      });
     })
 
     channelInfoRequest.end();
@@ -119,7 +125,7 @@ export default class Streamer {
   }
 
   // instance level wrapper for static method
-  async getCurrentStreamerData(streamer=this.username) {
+  async getCurrentStreamerData(streamer = this.username) {
     return await Streamer.getCurrentStreamerData(streamer);
   }
 

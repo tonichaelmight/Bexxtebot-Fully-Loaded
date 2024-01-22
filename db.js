@@ -41,14 +41,14 @@ const Database = {
         table.primary(['name', 'type']);
       });
     }
-    if (!await this.db.schema?.hasTable('config')){
+    if (!await this.db.schema?.hasTable('config')) {
       await this.db.schema.createTable('config', table => {
         table.string('config_variable_name').notNullable().unique();
         // should verify that values are not executable code
         table.json('value').notNullable();
       });
     }
-    if (!await this.db.schema?.hasTable('commands')){
+    if (!await this.db.schema?.hasTable('commands')) {
       await this.db.schema.createTable('commands', table => {
         table.string('command_name').notNullable().unique();
         table.string('command_type').notNullable(); // basic, async(possibly split into database vs web req commands), count
@@ -62,7 +62,75 @@ const Database = {
         table.boolean('refs_message'); // default false
       });
     }
+    if (!await this.db.schema?.hasTable('command_use_log')) {
+      await this.db.schema.createTable('command_use_log', table => {
+        table.string('command_name').notNullable();
+        table.string('username').notNullable();
+        table.string('message').notNullable();
+        table.timestamp('created_at').defaultTo(this.db.fn.now());
 
+        //table.foreign('command_name').references('command_name').inTable('commands');
+      })
+    }
+    if (!await this.db.schema?.hasTable('moderation_log')) {
+      await this.db.schema.createTable('moderation_log', table => {
+        table.string('offense').notNullable(); // term, ... ? idk what else tbh
+        table.string('message').notNullable(); // i assume any mod action will come from a message in chat
+        table.string('username').notNullable();
+        table.string('action').notNullable();
+        table.timestamp('created_at').defaultTo(this.db.fn.now());
+      })
+    }
+    if (!await this.db.schema?.hasTable('error_log')) {
+      await this.db.schema.createTable('error_log', table => {
+        table.string('code_ref'); // optional message in error logging calls that describes where the message came from
+        table.string('stack', 2000).notNullable(); // message from chat, code reference, etc
+        table.string('message'); // message from chat if applicable
+        table.string('username'); // username if error was from a chat message
+        table.timestamp('created_at').defaultTo(this.db.fn.now());
+      })
+    }
+
+  },
+
+  async log(type, eventData) {
+    switch (type) {
+      case 'command':
+        await this.logCommandUse(eventData.command, eventData.username, eventData.messageContent);
+        break;
+      case 'moderation':
+        await this.logModerationEvent(eventData.offense, eventData.username, eventData.messageContent, eventData.action);
+        break;
+      case 'error':
+        await this.logError(eventData.stack, eventData.codeRef, eventData.username, eventData.message);
+        break;
+    }
+  },
+
+  async logError(stack, codeRef, username, message) {
+    await this.db('error_log').insert({
+      'code_ref': codeRef,
+      'stack': stack,
+      'message': message,
+      'username': username
+    })
+  },
+
+  async logCommandUse(commandName, username, message) {
+    await this.db('command_use_log').insert({
+      'command_name': commandName,
+      'username': username,
+      'message': message
+    })
+  },
+
+  async logModerationEvent(offense, username, message, action) {
+    await this.db('moderation_log').insert({
+      'offense': offense,
+      'username': username,
+      'message': message,
+      'action': action
+    })
   },
 
   async addPreviousIfNeeded(name, type) {
@@ -78,9 +146,9 @@ const Database = {
       await this.db('previous_outputs').insert({
         name: name,
         type: type,
-        previous: JSON.stringify({previous: defaultValue})
+        previous: JSON.stringify({ previous: defaultValue })
       })
-    } catch(e) {
+    } catch (e) {
       if (!e.message.includes('duplicate key value violates unique constraint')) {
         throw e;
       }
@@ -92,15 +160,15 @@ const Database = {
   },
 
   async getPrevious(name, type) {
-    if (!PREVIOUS_TYPES.includes(type))throw new Error(`Invalid type for previous_outputs given "${type}" -- expected "timer", "command", or "count"`);
+    if (!PREVIOUS_TYPES.includes(type)) throw new Error(`Invalid type for previous_outputs given "${type}" -- expected "timer", "command", or "count"`);
 
     await this.contingentPreviousSetup(name, type);
     let record = await this.db('previous_outputs')
-      .where({name: name, type: type})
+      .where({ name: name, type: type })
       .first();
     const { previous } = record.previous;
     return previous;
-  }, 
+  },
 
   async getPreviousTimerOutput(name) {
     return await this.getPrevious(name, 'timer');
@@ -119,8 +187,8 @@ const Database = {
 
     await this.contingentPreviousSetup(name, type);
     await this.db('previous_outputs')
-      .where({name: name, type: type})
-      .update( { previous: newValue } )
+      .where({ name: name, type: type })
+      .update({ previous: newValue })
   },
 
   async setPreviousCommandOutput(name, newValue) {
