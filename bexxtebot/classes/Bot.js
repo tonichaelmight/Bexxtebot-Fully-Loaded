@@ -1,4 +1,5 @@
 import twitch from 'tmi.js';
+// import https from 'https';
 
 import TwitchMessage from './TwitchMessage.js';
 import Streamer from './Streamer.js';
@@ -15,7 +16,75 @@ export default class Bot {
     this.searching = false;
     this.searchCriteria = undefined;
     this.found = undefined;
+
+    // this.getUserId()
   }
+
+  // getUserId() {
+  //   const requestOptions = {
+  //     hostname: 'api.twitch.tv',
+  //     method: 'GET',
+  //     path: `/helix/users?login=${this.name}`,
+  //     headers: {
+  //       'Authorization': `Bearer ${this.token}`,
+  //       'Client-id': this.clientID
+  //     }
+  //   }
+
+  //   let result = '';
+
+  //   const userDataRequest = https.request(requestOptions, res => {
+
+  //     res.on('data', data => {
+  //       result += data;
+  //       try {
+  //         result = JSON.parse(result);
+  //         if (result.message && result.message === 'Invalid OAuth token') {
+  //           throw new Error(result.message);
+  //         }
+  //         result = result['data'][0]['id'];
+  //       } catch(e) {
+  //         if (!(e.name === 'SyntaxError' && (e.message === 'Unexpected end of JSON input' || e.message.includes('Unterminated string in JSON at position')))) {
+  //           result = false;
+  //           return this.bot.logger.log('error', {
+  //             stack: e.stack,
+  //             codeRef: 'error caught while getting user ID'
+  //           });
+  //         }
+  //       }
+
+  //     });
+
+  //   });
+
+  //   userDataRequest.on('error', e => {
+  //     this.bot.logger.log('error', {
+  //       stack: e.stack,
+  //       codeRef: 'error caught while fetching streamer data'
+  //     });
+  //   });
+
+  //   userDataRequest.end();
+
+  //   let cycles = 0;
+
+  //   // return result['data'][0]['id'];
+  //   return new Promise((resolve, reject) => {
+  //     const resolutionTimeout = setInterval(() => {
+  //       if (result) {
+  //         resolve(result);
+  //         this.id = result;
+  //         clearInterval(resolutionTimeout);
+  //       } else if (result === false || cycles > 5) {
+  //         reject('user id not found');
+  //         this.id = false;
+  //         clearInterval(resolutionTimeout);
+  //       }
+  //       cycles++;
+  //     }, 1000)
+  //   });
+
+  // }
 
   // estabishes a client that can read and send messages from/to Twitch
   attachDatabase(db) {
@@ -66,22 +135,22 @@ export default class Bot {
   }
 
   // moderates twitch messages
-  moderateTwitchMessage(twitchMessage) {
-    if (twitchMessage.needsModeration()) {
-      this.streamer.config.forbidden.forEach(word => {
-        if (twitchMessage.content.includes(word)) {
-          twitchMessage.addResponse(
-            `Naughty naughty, @${twitchMessage.tags.username}! We don't use that word here!`,
-            true
-          );
-          this.logger.log('moderation', {
-            offense: `Forbidden term: ${word}`,
-            action: '20 second timeout'
-          }, twitchMessage)
-        }
-      });
-    }
-  }
+  // moderateTwitchMessage(twitchMessage) {
+  //   if (twitchMessage.needsModeration()) {
+  //     this.streamer.config.forbidden.forEach(word => {
+  //       if (twitchMessage.content.includes(word)) {
+  //         twitchMessage.addResponse(
+  //           `Naughty naughty, @${twitchMessage.tags.username}! We don't use that word here!`,
+  //           true
+  //         );
+  //         this.logger.log('moderation', {
+  //           offense: `Forbidden term: ${word}`,
+  //           action: '20 second timeout'
+  //         }, twitchMessage)
+  //       }
+  //     });
+  //   }
+  // }
 
   // assesses a twitch message to see if it has a command structure ("!lurk" anywhere in a message, or any message beginning with "!")
   searchForTwitchCommand(twitchMessage) {
@@ -117,32 +186,34 @@ export default class Bot {
 
     twitchMessage.response.forEach(responseLine => {
 
-      if (responseLine.mean) {
-        this.twitchClient.timeout(
-          twitchMessage.channel,
-          twitchMessage.tags.username,
-          20,
-          'used forbidden term'
-        );
-        // she mad
-        this.twitchClient.color(
-          'red'
-        );
-        this.twitchClient.say(
-          twitchMessage.channel,
-          responseLine.output
-        );
-        // cool it
-        this.twitchClient.color(
-          'hotpink'
-        );
+      // if (responseLine.mean) {
+      //   // this.twitchClient.timeout(
+      //   //   twitchMessage.channel,
+      //   //   twitchMessage.tags.username,
+      //   //   20,
+      //   //   'used forbidden term'
+      //   // );
+      //   // // she mad
+      //   // // this.twitchClient.color(
+      //   // //   'red'
+      //   // // );
+      //   // this.updateChatColor('red')
+      //   // this.twitchClient.say(
+      //   //   twitchMessage.channel,
+      //   //   responseLine.output
+      //   // );
+      //   // // cool it
+      //   // // this.twitchClient.color(
+      //   // //   'hotpink'
+      //   // // );
+      //   // this.updateChatColor('hotpink');
 
-      } else {
+      // } else {
         this.twitchClient.say(
           twitchMessage.channel,
           responseLine.output,
         );
-      }
+      // }
 
     })
 
@@ -151,14 +222,14 @@ export default class Bot {
   // passes twitch messages through moderation and then looks for a command. sends a response message in twitch if one is created
   async processTwitchMessage(twitchMessage) {
 
-    this.moderateTwitchMessage(twitchMessage);
-    console.log('made it through moderation')
+    // this.moderateTwitchMessage(twitchMessage);
+    // console.log('made it through moderation')
 
-    if (twitchMessage.response) {
-      await this.speakInTwitch(twitchMessage);
-      // if a message gets modded, any commands will be ignored
-      return;
-    }
+    // if (twitchMessage.response) {
+    //   this.speakInTwitch(twitchMessage);
+    //   // if a message gets modded, any commands will be ignored
+    //   return;
+    // }
 
     const command = this.searchForTwitchCommand(twitchMessage);
     await this.executeTwitchCommand(twitchMessage, command);
@@ -166,7 +237,7 @@ export default class Bot {
     // only speak if she has something to say
     if (twitchMessage.response) {
       try {
-        await this.speakInTwitch(twitchMessage);
+        this.speakInTwitch(twitchMessage);
       } catch (e) {
         this.logger.log('error', {
           stack: e.stack,
@@ -197,6 +268,35 @@ export default class Bot {
       });
     }
   }
+
+  // async updateChatColor(color) {
+  //   console.log(this.id);
+  //   const requestOptions = {
+  //     hostname: 'api.twitch.tv',
+  //     method: 'PUT',
+  //     path: `/helix/chat/color?user_id=${this.id}&color=${color}`,
+  //     headers: {
+  //       'Authorization': `Bearer ${this.token}`,
+  //       'Client-id': this.clientID
+  //     }
+  //   }
+
+  //   const colorUpdateRequest = https.request(requestOptions, res => {
+
+  //     res.on('data', data => {
+  //       console.log(JSON.parse(data));
+  //     })
+  //   });
+
+  //   colorUpdateRequest.on('error', e => {
+  //     this.logger.log('error', {
+  //       stack: e.stack,
+  //       codeRef: 'error caught while attempting to update chat color'
+  //     })
+  //   });
+
+  //   colorUpdateRequest.end();
+  // }
 
   // estabishes a client that can send and receive messages from Discord
   // this is still very much WIP

@@ -86,7 +86,6 @@ export default class Streamer {
           // if the data come in multiple chunks, the initial attempts will fail since the data is incomplete. Throws "SyntaxError: Unexpected end of JSON input"
           // this can be ignored
           if (!(e.name === 'SyntaxError' && (e.message === 'Unexpected end of JSON input' || e.message.includes('Unterminated string in JSON at position')))) {
-            console.log(e);
             return this.bot.logger.log('error', {
               stack: e.stack,
               codeRef: 'error caught while parsing streamer data'
