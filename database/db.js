@@ -43,7 +43,8 @@ const Database = {
     }
     if (!await this.db.schema?.hasTable('config')) {
       await this.db.schema.createTable('config', table => {
-        table.string('config_variable_name').notNullable().unique();
+        table.string('variable_name').notNullable().unique();
+        table.string('type').notNullable(); // 'literal', 'array', 'object'
         // should verify that values are not executable code
         table.json('value').notNullable();
       });
@@ -93,6 +94,8 @@ const Database = {
 
   },
 
+
+  // LOGGING
   async log(type, eventData) {
     switch (type) {
       case 'command':
@@ -133,6 +136,8 @@ const Database = {
     })
   },
 
+
+  // PREVIOUS
   async addPreviousIfNeeded(name, type) {
     this.searchCache.previous[type][name] = true;
     let defaultValue;
@@ -207,6 +212,42 @@ const Database = {
     const current = await this.getStoredCount(name);
     await this.setStoredCount(name, current + 1);
   },
+
+
+  // CONFIG
+  async getConfigVariable(variableName) {
+    const record = await this.db('config')
+      .where({variable_name: variableName})
+      .first();
+
+    // likely need some error catching here for if the variable does not exist
+
+    const value = record?.value.value;
+    if (value === undefined) throw new Error(`attempted to retrieve a config variable "${variableName}", which does not exist`)
+    return value;
+  },
+
+  async setConfigVariable(variableName, type, value) {
+    try {
+      await this.db('config')
+        .insert({
+          variable_name: variableName,
+          type,
+          value
+        })
+    } catch(e) {
+      if (e.message.includes('duplicate key value violates unique constraint')) {
+        await this.db('config')
+          .update({
+            'value': value,
+            type
+          })
+          .where('variable_name', variableName);
+      } else {
+        throw e;
+      }
+    }
+  }
 
 }
 
