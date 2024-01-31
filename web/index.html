@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>BexxteSomething</title>
+</head>
+
+<template id="variable-template">
+	<style>
+		article {
+			max-width: 300px;
+			border: double #9d50bd 2px;
+			padding: 10px;
+			text-align: center;
+		}
+
+		hr {
+			border: none;
+			border-top: 3px double #3d184d;
+			color: #3d184d;
+			overflow: visible;
+			text-align: center;
+			height: 5px;
+		}
+
+		hr::after {
+			background: #d990da;
+			border: none;
+			box-shadow: 0 0 5px 4px inset white;
+			content: '§';
+			padding: 0 4px;
+			position: relative;
+			top: -13px;
+		}
+	</style>
+	<article>
+		<h3>
+			<slot name="variable-name">Variable Name</slot>
+		</h3>
+		<hr>
+		<p>
+			<slot name="value">Value</slot>
+		</p>
+	</article>
+</template>
+
+<body>
+	<variable-element>
+		<span slot="variable-name">test</span>
+		<span slot="value">1</span>
+	</variable-element>
+
+	<script src="index.js"></script>
+</body>
+
+</html>
