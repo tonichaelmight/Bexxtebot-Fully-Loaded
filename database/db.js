@@ -247,6 +247,11 @@ const Database = {
         throw e;
       }
     }
+  },
+
+  async getConfiguration() {
+    const config = await this.db('config');
+    return config;
   }
 
 }

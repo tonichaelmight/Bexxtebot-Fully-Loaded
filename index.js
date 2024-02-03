@@ -65,8 +65,10 @@ app.put('/previous/:type/:name', async (req, res) => {
   res.send();
 })
 
-app.get('/config', (req, res) => {
+app.get('/config', async (req, res) => {
   // should produce an object representing the full configuration
+  const config = await Database.getConfiguration();
+  res.status(200).json(config);
 })
 
 app.get('/config/:name', async (req, res) => {

@@ -5,15 +5,18 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>BexxteSomething</title>
+	<link href="style.css" rel="stylesheet" />
 </head>
 
 <template id="variable-template">
 	<style>
 		article {
 			max-width: 300px;
+			min-width: 150px;
 			border: double #9d50bd 2px;
 			padding: 10px;
 			text-align: center;
+			margin-bottom: 10px;
 		}
 
 		hr {
@@ -47,12 +50,17 @@
 </template>
 
 <body>
-	<variable-element>
+	<main>
+		<h1>Variables</h1>
+		<section id="variables-container"></section>
+	</main>
+	<!-- <variable-element>
 		<span slot="variable-name">test</span>
 		<span slot="value">1</span>
-	</variable-element>
+	</variable-element> -->
 
-	<script src="index.js"></script>
+	<script src="retrieve_config.js"></script>
+	<script src="index.js" defer></script>
 </body>
 
 </html>
