@@ -40,7 +40,7 @@ export default class Streamer {
   }
 
   // static class for getting streamer data using the streamer's display name
-  static async getCurrentStreamerData(streamer) {
+  static async getCurrentStreamerData(streamer, bot) {
     const channelRequestOptions = {
       hostname: 'api.twitch.tv',
       method: 'GET',
@@ -86,7 +86,7 @@ export default class Streamer {
           // if the data come in multiple chunks, the initial attempts will fail since the data is incomplete. Throws "SyntaxError: Unexpected end of JSON input"
           // this can be ignored
           if (!(e.name === 'SyntaxError' && (e.message === 'Unexpected end of JSON input' || e.message.includes('Unterminated string in JSON at position')))) {
-            return this.bot.logger.log('error', {
+            return bot.logger.log('error', {
               stack: e.stack,
               codeRef: 'error caught while parsing streamer data'
             });
@@ -98,7 +98,7 @@ export default class Streamer {
     });
 
     channelInfoRequest.on('error', e => {
-      this.bot.logger.log('error', {
+      bot.logger.log('error', {
         stack: e.stack,
         codeRef: 'error caught while fetching streamer data'
       });
@@ -125,7 +125,7 @@ export default class Streamer {
 
   // instance level wrapper for static method
   async getCurrentStreamerData(streamer = this.username) {
-    return await Streamer.getCurrentStreamerData(streamer);
+    return await Streamer.getCurrentStreamerData(streamer, this.bot);
   }
 
 }
