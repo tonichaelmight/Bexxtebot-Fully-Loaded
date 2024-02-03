@@ -4,7 +4,7 @@
 // Basic commands will yield the same output every time they are executed -- foundation for more specialized command types
 export class TwitchCommand {
 
-  constructor(name, output, options={}) {
+  constructor(name, output, options = {}) {
     this.name = name;
     if (typeof output === 'function') {
       this.outputFunction = output;
@@ -62,7 +62,7 @@ export class TwitchCommand {
 
   logErrorExecuting(messageObject, e) {
     this.streamer.bot.logger.log('error', {
-      stack: e.stack, 
+      stack: e.stack,
       codeRef: `Error executing the ${this.name} command`
     }, messageObject);
   }
@@ -85,7 +85,7 @@ export class TwitchCommand {
 // Commands that use an asynchronous callback function
 export class AsyncTwitchCommand extends TwitchCommand {
 
-  constructor(name, output, options={}) {
+  constructor(name, output, options = {}) {
     super(name, output, options);
   }
 
@@ -108,7 +108,7 @@ export class AsyncTwitchCommand extends TwitchCommand {
 export class TwitchCounterCommand extends TwitchCommand {
 
   // Current work
-  constructor(name, outputs, options={}) {
+  constructor(name, outputs, options = {}) {
     super(name, undefined, options);
     this.outputs = outputs;
     this.options.modOnly = true;
@@ -119,35 +119,35 @@ export class TwitchCounterCommand extends TwitchCommand {
     const command = messageWords[0].slice(1);
     const evaluation = {};
 
-    if (command === this.name) {
-      if (!messageObject.needsModeration()) {
-        // !test set
-        if (messageWords[1] === 'set') {
-          evaluation.action = 'set';
-          const newValue = messageWords[2] * 1;       
-          const setSuccess = await this.streamer.bot.db.setCount(this.name, newValue);
+    if (command === this.name && !messageObject.needsModeration()) {
+      // if (!messageObject.needsModeration()) {
+      // !test set
+      if (messageWords[1] === 'set') {
+        evaluation.action = 'set';
+        const newValue = messageWords[2] * 1;
+        const setSuccess = await this.streamer.bot.db.setStoredCount(this.name, { 'previous': newValue });
 
-          if (setSuccess) {
-            evaluation.successful = true;
-            evaluation.endValue = newValue;
-          } else {
-            evaluation.successful = false;
-            evaluation.endValue = await this.getValue();
-            evaluation.attempt = newValue;
-          }
-        // !test
+        if (setSuccess) {
+          evaluation.successful = true;
+          evaluation.endValue = newValue;
         } else {
-          evaluation.action = 'add';
-          // const currentValue = this.getValue();
-          // const newValue = currentValue * 1 + 1;
-          await this.streamer.bot.db.incrementCount(this.name)
-          evaluation.endValue = await this.streamer.bot.db.getCount(this.name);
+          evaluation.successful = false;
+          evaluation.endValue = await this.getValue();
+          evaluation.attempt = newValue;
         }
+        // !test
       } else {
-        return;
+        evaluation.action = 'add';
+        // const currentValue = this.getValue();
+        // const newValue = currentValue * 1 + 1;
+        await this.streamer.bot.db.incrementCount(this.name)
+        evaluation.endValue = await this.streamer.bot.db.getStoredCount(this.name);
       }
-    // !tests
-    } else if (command === `${this.name}s`) {
+      // } else {
+      //   return;
+
+      // !tests
+      // or non-mods using !test
       evaluation.action = 'show';
       evaluation.endValue = await this.getValue();
     }
@@ -159,7 +159,7 @@ export class TwitchCounterCommand extends TwitchCommand {
   async getValue() {
 
     // let currentCacheValue = this.streamer.cache.getCountCache(this.name, 0);    
-    let currentCacheValue = await this.streamer.bot.db.getCount(this.name);
+    let currentCacheValue = await this.streamer.bot.db.getStoredCount(this.name);
 
     // console.log(currentCacheValue)
 

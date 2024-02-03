@@ -205,12 +205,18 @@ const Database = {
   },
 
   async setStoredCount(name, newValue) {
-    await this.setPrevious(name, 'count', newValue);
+    try {
+      await this.setPrevious(name, 'count', newValue);
+      return true;
+    } catch(e) {
+      this.logError(e.stack, 'caught error attempting to set the stored value of a counter command')
+      return false;
+    }
   },
 
   async incrementCount(name) {
     const current = await this.getStoredCount(name);
-    await this.setStoredCount(name, current + 1);
+    await this.setStoredCount(name, {'previous': current + 1});
   },
 
 

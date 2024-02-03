@@ -76,7 +76,7 @@ const commands = {
 
   michael: new AsyncTwitchCommand('michael',
     async function() {
-      let currentCache = await this.streamer.bot.db.getCommandPrevious(this.name);
+      let currentCache = await this.streamer.bot.db.getPreviousCommandOutput(this.name);
       const michaelQuotes = bexxteConfig.michaelQuotes;
       let i;
       do {
@@ -91,7 +91,7 @@ const commands = {
         currentCache.shift();
       }
 
-      await this.streamer.bot.db.setCommandPrevious(this.name, currentCache);
+      await this.streamer.bot.db.setPreviousCommandOutput(this.name, {"previous": currentCache});
 
       return `Humor King tonichaelmight aka my best friend for over half my life??? we're old. As he once said: "${bexxteConfig.michaelQuotes[i]}"`;
     }
@@ -136,7 +136,7 @@ const commands = {
 
   quote: new AsyncTwitchCommand('quote',
     async function() {
-      let currentCache = await this.streamer.bot.db.getCommandPrevious(this.name);
+      let currentCache = await this.streamer.bot.db.getPreviousCommandOutput(this.name);
       const bekkaQuotes = bexxteConfig.quotes;
       let i;
       do {
@@ -151,7 +151,7 @@ const commands = {
         currentCache.shift();
       }
 
-      await this.streamer.bot.db.setCommandPrevious(this.name, currentCache);
+      await this.streamer.bot.db.setPreviousCommandOutput(this.name, {"previous": currentCache});
 
       return bexxteConfig.quotes[i];
     }

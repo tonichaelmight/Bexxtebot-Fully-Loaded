@@ -51,7 +51,7 @@ export default class Timer {
         let dummyMessage;
 
         if (live && currentGame === this.options.gameTitle) {
-          let previous = await this.streamer.bot.db.getTimerPrevious(this.name);
+          let previous = await this.streamer.bot.db.getPreviousTimerOutput(this.name);
           let i = this.getRandomIndex();
           while (previous.includes(i)) {
             i = this.getRandomIndex();
@@ -74,7 +74,7 @@ export default class Timer {
             previous.shift();
           }
 
-          this.streamer.bot.db.setTimerPrevious(this.name, previous);
+          this.streamer.bot.db.setPreviousTimerOutput(this.name, { "previous": previous });
         } else {
           dummyMessage = null;
         }
