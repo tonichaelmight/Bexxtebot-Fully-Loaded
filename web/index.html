@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>BexxteSomething</title>
 	<link href="style.css" rel="stylesheet" />
+	<link rel="icon" href="emotes/bexxteLove/bexxteLove 28.png">
 </head>
 
 <template id="variable-template">
@@ -43,9 +44,57 @@
 			<slot name="variable-name">Variable Name</slot>
 		</h3>
 		<hr>
-		<p>
-			<slot name="value">Value</slot>
-		</p>
+		<slot name="value">Value</slot>
+	</article>
+</template>
+
+<template id="edit-variable-template">
+	<style>
+		article {
+			max-width: 300px;
+			min-width: 150px;
+			border: double #9d50bd 2px;
+			padding: 10px;
+			text-align: center;
+			margin-bottom: 10px;
+		}
+
+		hr {
+			border: none;
+			border-top: 3px double #3d184d;
+			color: #3d184d;
+			overflow: visible;
+			text-align: center;
+			height: 5px;
+		}
+
+		hr::after {
+			background: #d990da;
+			border: none;
+			box-shadow: 0 0 5px 4px inset white;
+			content: '§';
+			padding: 0 4px;
+			position: relative;
+			top: -13px;
+		}
+	</style>
+	<article>	
+		<slot name="variable-type">
+		</slot>
+		<input type="text">
+			<slot name="variable-name-input">
+			</slot>
+		</input>
+		<select>
+			<option value="literal">literal</option>
+			<option value="array">array</option>
+			<option value="object">object</option>
+		</select>
+		<hr>
+		<slot name="value-data">
+		</slot>
+		<section class="value-arena"></section>
+		<button>Save Variable</button>
 	</article>
 </template>
 

@@ -1,0 +1,19 @@
+* {
+    border-collapse: collapse;
+}
+
+
+main {
+    width: 95%;
+    min-width: 200px;
+    margin: 0 auto;
+}
+
+section#variables-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 90%;
+    min-width: 160px;
+    margin: 0 auto;
+}

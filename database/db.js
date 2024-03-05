@@ -111,6 +111,8 @@ const Database = {
   },
 
   async logError(stack, codeRef, username, message) {
+    console.log(codeRef);
+    console.log(message);
     await this.db('error_log').insert({
       'code_ref': codeRef,
       'stack': stack,
@@ -159,6 +161,9 @@ const Database = {
       }
     }
   },
+
+  // SELECT * FROM previous_outputs
+  // WHERE id = 9 and name = bitch;
 
   async contingentPreviousSetup(name, type) {
     if (!this.searchCache.previous[type][name]) await this.addPreviousIfNeeded(name, type);

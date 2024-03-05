@@ -122,7 +122,7 @@ export default class Bot {
       }
 
       try {
-        // there are no errors expected here, so if something does happen it gets logged in error.txt and we keep the program running (otherwise bexxteBot stops :/ )
+        // there are no errors expected here, so if something does happen it gets logged in the error_log table and we keep the program running (otherwise bexxteBot stops :/ )
         await this.processTwitchMessage(twitchMessage);
       } catch(e) {
         this.logger.log('error', {

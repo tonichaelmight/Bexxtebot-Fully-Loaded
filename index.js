@@ -20,6 +20,7 @@ class InvalidValueError extends Error {
 }
 
 app.use(cors());
+app.use(express.static('web/public'));
 
 app.get('/', (req, res) => {
   res.status(200).send('success!');
@@ -65,10 +66,15 @@ app.put('/previous/:type/:name', async (req, res) => {
   res.send();
 })
 
-app.get('/config', async (req, res) => {
+app.get('/config/all', async (req, res) => {
   // should produce an object representing the full configuration
   const config = await Database.getConfiguration();
   res.status(200).json(config);
+})
+
+app.get('/config', async (req, res) => {
+  // should produce an object representing the full configuration
+  res.status(200).sendFile('web/index.html', {root:'./'});
 })
 
 app.get('/config/:name', async (req, res) => {
@@ -90,36 +96,34 @@ app.get('/config/:name', async (req, res) => {
 app.put('/config/:name/:type', async (req, res) => {
   const { name, type } = req.params;
   const { value } = req.query;
+  console.log();
+  const decodedValue = JSON.parse(value).value
 
-  if (!value) {
+  if (!decodedValue) {
     res.status(400).send('Improperly formatted request');
     return;
   }
-  const value_for_check = JSON.parse(value).value;
 
   // probably do more here to sanitize data
+  console.log(type);
   try {
     switch(type) {
       case 'literal':
-        if (!['string', 'number', 'boolean'].includes(typeof value_for_check)) {
-          res.status(400).send('Improperly formatted request');
-          throw new InvalidValueError('config', type, value_for_check, "'string', 'number', 'boolean'");
+        if (!['string', 'number', 'boolean'].includes(typeof decodedValue)) {
+          throw new InvalidValueError('config', type, decodedValue, "'string', 'number', 'boolean'");
         }
         break;
       case 'array':
-        if (!Array.isArray(value_for_check)) {
-          res.status(400).send('Improperly formatted request');
-          throw new InvalidValueError('config', type, value_for_check, 'array');
+        if (!Array.isArray(decodedValue)) {
+          throw new InvalidValueError('config', type, decodedValue, 'array');
         }
         break;
       case 'object':
-        if (typeof value_for_check === 'object') {
-          res.status(400).send('Improperly formatted request');
-          throw new InvalidValueError('config', type, value_for_check, 'object');
+        if (!typeof decodedValue === 'object') {
+          throw new InvalidValueError('config', type, decodedValue, 'object');
         }
         break;
       default:
-        res.status(400).send('Improperly formatted request');
         throw new Error('Invalid config type');
   
     }
@@ -128,6 +132,7 @@ app.put('/config/:name/:type', async (req, res) => {
       stack: e.stack,
       codeRef: 'error caught sending config data to database'
     })
+    res.status(400).send('Improperly formatted request');
   }
   
   await Database.setConfigVariable(name, type, value);

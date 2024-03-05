@@ -270,7 +270,11 @@ const commands = {
           return output;
         }
 
-        return this.streamer.bot.logger.log('error', e, messageObject);
+        return this.logErrorExecuting(messageObject, e);
+        // return this.streamer.bot.logger.log('error', {
+        //   stack: e.stack,
+        //   codeRef: `Error executing the ${this.name} command`
+        // }, messageObject);
       }
 
       let shoutout = '';
@@ -303,7 +307,9 @@ const commands = {
       try {
         streamerData = await Streamer.getCurrentStreamerData(bexxteConfig.broadcastingChannel);
       } catch (e) {
-        return this.streamer.bot.logger.log('error', e, messageObject);
+
+        return this.logErrorExecuting(messageObject, e);
+        // return this.streamer.bot.logger.log('error', e, messageObject);
       }
 
       let uptimeOutput = '';

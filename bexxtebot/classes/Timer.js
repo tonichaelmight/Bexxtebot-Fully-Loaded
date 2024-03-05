@@ -42,10 +42,21 @@ export default class Timer {
 
   async getTimerOutput() {
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       setTimeout(async () => {
-        const streamerData = await this.streamer.getCurrentStreamerData();
+        let streamerData;
+        try {
+          streamerData = await this.streamer.getCurrentStreamerData();
+        } catch(e) {
+          this.streamer.bot.logger.log('error', {
+            stack: e.stack,
+            codeRef: `error caught fetching streamer data within a timer`
+          });
+          resolve(null);
+          return;
+        }
         const live = testingMode ? true : streamerData.is_live;
+        // const live = streamerData.is_live;
         const currentGame = this.options.gameTitle ? streamerData.game_name : undefined;
 
         let dummyMessage;

@@ -74,7 +74,12 @@ export class TwitchCommand {
 
     try {
       // pass the message object if the command needs to reference it
-      this.options.refsMessage ? messageObject.addResponse(this.outputFunction(messageObject)) : messageObject.addResponse(this.outputFunction());
+      const argument = this.options.refsMessage ? messageObject : undefined;
+      const output = this.outputFunction(argument)
+
+      if (!output) return;
+
+      messageObject.addResponse(output) 
       this.logCommandUsage(messageObject);
     } catch (e) {
       this.logErrorExecuting(messageObject, e);
@@ -96,9 +101,21 @@ export class AsyncTwitchCommand extends TwitchCommand {
     this.triggerCooldown();
 
     try {
-      this.options.refsMessage ? messageObject.addResponse(await this.outputFunction(messageObject)) : messageObject.addResponse(await this.outputFunction());
+      // pass the message object if the command needs to reference it
+      const argument = this.options.refsMessage ? messageObject : undefined;
+      const output = await this.outputFunction(argument);
+
+      if (!output) return;
+
+      messageObject.addResponse(output) 
       this.logCommandUsage(messageObject);
-    } catch (e) {
+    } 
+
+    // try {
+    //   this.options.refsMessage ? messageObject.addResponse(await this.outputFunction(messageObject)) : messageObject.addResponse(await this.outputFunction());
+    //   this.logCommandUsage(messageObject);
+    // } 
+    catch (e) {
       this.logErrorExecuting(messageObject, e);
     }
   }
