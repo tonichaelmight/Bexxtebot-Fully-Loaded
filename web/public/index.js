@@ -6,15 +6,71 @@
 
 class Variable extends HTMLElement {
 	constructor() {
-		self = super();
+		super();
 	}
 
 	connectedCallback() {
-		let template = document.getElementById("variable-template");
-		let templateContent = template.content;
+		// let template = document.getElementById("variable-template");
+		// let templateContent = template.content;
 
-		const shadowRoot = this.attachShadow({ mode: "open" });
-		shadowRoot.appendChild(templateContent.cloneNode(true));
+		// const shadowRoot = this.attachShadow({ mode: "open" });
+		// shadowRoot.appendChild(templateContent.cloneNode(true));
+
+		const article = document.createElement('article');
+		const heading = document.createElement('h3');
+
+		if (this.hasAttribute('name')) {
+			heading.innerText = this.getAttribute('name');
+		} else throw new Error('missing required attribute');
+
+		article.appendChild(heading);
+
+		const hr = document.createElement('hr');
+		article.appendChild(hr);
+
+		const section = document.createElement('section');
+		const variableType = this.getAttribute('type');
+		const value = this.getAttribute('value');
+		//
+		//
+		// eval below
+		//
+		//
+		if (item.type === 'array') {
+			const listEl = document.createElement('ul');
+			listEl.style.listStyle = 'none';
+			listEl.style.padding = 0;
+			const varValue = item.value.value;
+			varValue.forEach(val => {
+				const valueItem = document.createElement('li');
+				valueItem.innerText = `${val},`;
+				valueItem.style.margin = '5px 0';
+				listEl.appendChild(valueItem);
+			});
+			const listElChildren = listEl.children;
+			// remove the comma from the last one
+			listElChildren[listElChildren.length - 1].innerText = listElChildren[listElChildren.length - 1].innerText.slice(0, -1);
+			section.appendChild(listEl);
+
+		} else if (item.type === 'object') {
+			const listEl = document.createElement('ul');
+			listEl.style.listStyle = 'none';
+			listEl.style.padding = 0;
+			const varValue = item.value.value;
+			for (const key in varValue) {
+				const valueItem = document.createElement('li');
+				valueItem.innerHTML = `<strong>${key}</strong>: ${varValue[key]},`;
+				valueItem.style.margin = '5px 0';
+				listEl.appendChild(valueItem);
+			} listElChildren = listEl.children;
+			listElChildren[listElChildren.length - 1].innerHTML = listElChildren[listElChildren.length - 1].innerHTML.slice(0, -1);
+			section.appendChild(listEl);
+
+		} else {
+			const p = document.createElement('p');
+			p.innerText = item.value.value;
+			section.appendChild(p);
+		}
 	}
 }
 
@@ -65,7 +121,7 @@ class EditVariable extends HTMLElement {
 		shadowRoot.appendChild(templateContent.cloneNode(true));
 
 		const hr = this.querySelector('hr');
-		console.log(shadowRoot.getElementByClassName('value-area'));
+		// console.log(shadowRoot.getElementByClassName('value-area'));
 		// hr.insertAdjacentElement('afterend', variableValueInputs);
 
 	}

@@ -17,3 +17,40 @@ section#variables-container {
     min-width: 160px;
     margin: 0 auto;
 }
+
+article {
+    max-width: 300px;
+    min-width: 150px;
+    border: double #9d50bd 2px;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+hr {
+    border: none;
+    border-top: 3px double #3d184d;
+    color: #3d184d;
+    overflow: visible;
+    text-align: center;
+    height: 5px;
+}
+
+hr::after {
+    background: #d990da;
+    border: none;
+    box-shadow: 0 0 5px 4px inset white;
+    content: '§';
+    padding: 0 4px;
+    position: relative;
+    top: -13px;
+}
+
+variable-element ul {
+    list-style: none;
+    padding: 0;
+}
+
+variable-element ul li {
+    margin: 5px 0;
+}

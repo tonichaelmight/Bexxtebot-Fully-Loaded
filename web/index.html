@@ -101,7 +101,14 @@
 <body>
 	<main>
 		<h1>Variables</h1>
-		<section id="variables-container"></section>
+		<section id="variables-container">
+			<variable-element name="test" value="1" type="literal">
+			</variable-element>
+			<variable-element name="shelby" value='["Michael", "Bekka", "yes", 4]'' type="array">
+			</variable-element>
+			<variable-element name="bart" value='{"shrimp":true,"engaged":false,"name":"Signe"}' type="object">
+			</variable-element>
+		</section>
 	</main>
 	<!-- <variable-element>
 		<span slot="variable-name">test</span>
@@ -109,7 +116,7 @@
 	</variable-element> -->
 
 	<script src="retrieve_config.js"></script>
-	<script src="index.js" defer></script>
+	<script src="index_v2.js" defer></script>
 </body>
 
 </html>
