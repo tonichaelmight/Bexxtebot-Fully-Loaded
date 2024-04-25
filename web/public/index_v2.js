@@ -1,3 +1,6 @@
+// a static element
+// once it renders its attributes should not change
+// it should be fully attributed at initialization
 class Variable extends HTMLElement {
     constructor() {
         super();
@@ -71,4 +74,48 @@ class Variable extends HTMLElement {
     }
 }
 
+class EditVariable extends HTMLElement {
+	static observedAttributes = ["type", "name", "value"];
+    static validTypes = ['literal', 'array', 'object'];
+
+	constructor() {
+		super();
+	}
+
+    processType() {
+        let variableType = this.getAttribute('type');
+        if (!variableType) {
+            variableType = 'literal';
+            this.getAttribute('type', 'literal')
+        }
+        if (!EditVariable.validTypes.includes(variableType)) throw new Error(`invalid type ${variableType} given.`)
+        return variableType;
+    }
+
+    processName() {
+        let variableName = this.getAttribute('name');
+        if (variableName === null) {
+            variableName = '';
+            this.getAttribute('name', '')
+        }
+        return variableName;
+    }
+
+    processValue() {
+        let value = this.getAttribute('value');
+        if (value === null) {
+            value = '';
+            this.getAttribute('name', '')
+        }
+        return value;
+    }
+
+    connectedCallback() {
+        const variableType = this.processType();
+        const variableName = this.processName();
+        const variableValue = this.processValue();
+    }
+}
+
 customElements.define('variable-element', Variable);
+customElements.define('edit-variable-element', EditVariable);
